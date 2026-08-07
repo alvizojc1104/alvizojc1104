@@ -128,7 +128,7 @@ Modern streaming interface supporting:
 
 ---
 
-### 💳 Mini Wallet
+### 💳 Mex
 
 Digital wallet featuring:
 
