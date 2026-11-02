@@ -23,7 +23,7 @@ jobs:
       - name: git-profile-koi
         uses: yalongwastaken/git-koi@v1.0.2
         with:
-          body: gold # Options: white, black, asagi, tea, gold, platinum
+          body: white # Options: white, black, asagi, tea, gold, platinum
           output-dir: koi
 
       - name: Commit the koi if it changed
