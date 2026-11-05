@@ -9,6 +9,7 @@ on:
     paths:
       - .github/workflows/koi.yml
       - scripts/update_profile_assets.py
+      - scripts/enforce_surface_feeding.py
 
 permissions:
   contents: write
@@ -30,6 +31,10 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+
+      - name: Enforce surface feeding animation
+        run: |
+          python scripts/enforce_surface_feeding.py
 
       - name: Generate bonsai and profile stats
         run: |
