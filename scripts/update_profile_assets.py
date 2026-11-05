@@ -254,13 +254,24 @@ def draw_bonsai():
 
 def recolor_koi():
     source = Image.open(ROOT / "koi/koi.gif")
-    source_palette = source.getpalette() or []
-    source_colors = [
-        tuple(source_palette[index:index + 3])
-        for index in range(3, len(source_palette), 3)
-    ]
-    colors = Image.new("RGB", (len(source_colors), 1))
-    colors.putdata(source_colors)
+    unique_colors = set()
+    frames_rgba = []
+    durations = []
+    for frame_index in range(source.n_frames):
+        source.seek(frame_index)
+        rgba = source.convert("RGBA")
+        frames_rgba.append(rgba)
+        durations.append(source.info.get("duration", 70))
+        for pixel in rgba.getdata():
+            if pixel[3] > 64:
+                unique_colors.add(pixel[:3])
+
+    color_list = sorted(list(unique_colors))
+    if not color_list:
+        return
+
+    colors = Image.new("RGB", (len(color_list), 1))
+    colors.putdata(color_list)
     hsv = colors.convert("HSV")
     shifted = Image.new("HSV", hsv.size)
     shifted.putdata([
@@ -269,21 +280,19 @@ def recolor_koi():
     ])
     shifted_colors = list(shifted.convert("RGB").getdata())
     palette = [0, 0, 0] + [channel for color in shifted_colors for channel in color]
-    palette += [0] * (768 - len(palette))
-    color_indexes = {color: index + 1 for index, color in enumerate(source_colors)}
+    palette += [0] * max(0, 768 - len(palette))
+    palette = palette[:768]
+    color_indexes = {color: index + 1 for index, color in enumerate(color_list)}
+
     frames = []
-    durations = []
-    for frame_index in range(source.n_frames):
-        source.seek(frame_index)
-        rgba = source.convert("RGBA")
+    for rgba in frames_rgba:
         indexed = Image.new("P", rgba.size)
         indexed.putpalette(palette)
         indexed.putdata([
-            0 if pixel[3] <= 64 else color_indexes[pixel[:3]]
+            0 if pixel[3] <= 64 else color_indexes.get(pixel[:3], 1)
             for pixel in rgba.getdata()
         ])
         frames.append(indexed)
-        durations.append(source.info.get("duration", 70))
     frames[0].save(
         ROOT / "koi/koi-coral.gif",
         save_all=True,
@@ -329,7 +338,7 @@ def crop_koi():
         indexed = Image.new("P", rgba.size)
         indexed.putpalette(base_palette)
         indexed.putdata([
-            0 if pixel[3] <= 64 else color_indexes[pixel[:3]]
+            0 if pixel[3] <= 64 else color_indexes.get(pixel[:3], 1)
             for pixel in rgba.getdata()
         ])
         frames.append(indexed)

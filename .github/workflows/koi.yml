@@ -19,15 +19,15 @@ jobs:
   koi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: git-profile-koi
-        uses: yalongwastaken/git-koi@v1.0.2
+        uses: yalongwastaken/git-koi@v1
         with:
           body: white # Options: white, black, asagi, tea, gold, platinum
           output-dir: koi
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
